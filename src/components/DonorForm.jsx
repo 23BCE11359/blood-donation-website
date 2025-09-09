@@ -11,6 +11,7 @@ function DonorForm() {
   });
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState({});
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
   const validateForm = () => {
@@ -47,7 +48,11 @@ function DonorForm() {
       setMessage("Donor information submitted successfully!");
       setErrors({});
       setFormData({ name: "", email: "", bloodType: "" });
-      setTimeout(() => navigate("/"), 2000); // Redirect to Home after 2 seconds
+      setShowModal(true);
+      setTimeout(() => {
+        setShowModal(false);
+        navigate("/");
+      }, 3000); // Redirect to Home after 3 seconds
     } catch (error) {
       setMessage("Error submitting donor information: " + error.message);
     }
@@ -94,13 +99,13 @@ function DonorForm() {
           >
             <option value="">Select Blood Type</option>
             <option value="A+">A+</option>
-            <option value="A-">A-</option>
+            <option value="A- ">A-</option>
             <option value="B+">B+</option>
-            <option value="B-">B-</option>
+            <option value="B- ">B-</option>
             <option value="AB+">AB+</option>
-            <option value="AB-">AB-</option>
+            <option value="AB- ">AB-</option>
             <option value="O+">O+</option>
-            <option value="O-">O-</option>
+            <option value="O- ">O-</option>
           </select>
           {errors.bloodType && <p className="text-red-500 text-xs mt-1">{errors.bloodType}</p>}
         </div>
@@ -111,6 +116,11 @@ function DonorForm() {
           Submit Donation
         </button>
       </form>
+      {showModal && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded shadow-md">
+          <p className="text-green-600">Thank you for your donation!</p>
+        </div>
+      )}
     </div>
   );
 }
