@@ -65,6 +65,21 @@ function HomePage() {
     }
   };
 
+  const exportToCSV = () => {
+    const headers = ["Blood Type,Number of Donors"];
+    const rows = Object.entries(stats.bloodTypes).map(([type, count]) =>
+      `${type},${count}`
+    );
+    const csvContent = [headers, ...rows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "blood_type_distribution.csv";
+    link.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="p-4 max-w-4xl mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -115,9 +130,15 @@ function HomePage() {
                   <option value="pie">Pie</option>
                 </select>
               </div>
-              <div className="w-full max-w-xs mx-auto">
+              <div className="w-full max-w-xs mx-auto mb-4">
                 {renderChart()}
               </div>
+              <button
+                onClick={exportToCSV}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Export to CSV
+              </button>
             </>
           )}
         </div>
