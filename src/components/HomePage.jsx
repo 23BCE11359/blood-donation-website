@@ -2,15 +2,16 @@ import { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { Link } from "react-router-dom";
-import { Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Doughnut, Bar, Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from "chart.js";
 
 // Register Chart.js components
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
 function HomePage() {
   const [stats, setStats] = useState({ total: 0, bloodTypes: {} });
   const [loading, setLoading] = useState(true);
+  const [chartType, setChartType] = useState("doughnut");
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -51,6 +52,19 @@ function HomePage() {
     ],
   };
 
+  const renderChart = () => {
+    switch (chartType) {
+      case "doughnut":
+        return <Doughnut data={chartData} />;
+      case "bar":
+        return <Bar data={chartData} />;
+      case "pie":
+        return <Pie data={chartData} />;
+      default:
+        return <Doughnut data={chartData} />;
+    }
+  };
+
   return (
     <div className="p-4 max-w-4xl mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -89,8 +103,20 @@ function HomePage() {
                   </li>
                 ))}
               </ul>
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">Select Chart Type:</label>
+                <select
+                  value={chartType}
+                  onChange={(e) => setChartType(e.target.value)}
+                  className="p-2 border rounded"
+                >
+                  <option value="doughnut">Doughnut</option>
+                  <option value="bar">Bar</option>
+                  <option value="pie">Pie</option>
+                </select>
+              </div>
               <div className="w-full max-w-xs mx-auto">
-                <Doughnut data={chartData} />
+                {renderChart()}
               </div>
             </>
           )}
