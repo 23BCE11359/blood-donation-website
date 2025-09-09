@@ -1,28 +1,36 @@
-import { useState } from 'react';
-import { db } from '../firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { useState } from "react";
+import { db } from "../firebase";
+import { collection, addDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 function DonorForm() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [bloodType, setBloodType] = useState('');
-  const [message, setMessage] = useState('');
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    bloodType: "",
+  });
+  const [message, setMessage] = useState("");
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const validateForm = () => {
     const newErrors = {};
-    if (!name.trim()) newErrors.name = 'Name is required';
-    if (!email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
-      newErrors.email = 'Email is invalid';
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      newErrors.email = "Email is invalid";
     }
-    if (!bloodType) newErrors.bloodType = 'Please select a blood type';
+    if (!formData.bloodType) newErrors.bloodType = "Please select a blood type";
     return newErrors;
   };
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevents browser validation
+    e.preventDefault();
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -30,19 +38,18 @@ function DonorForm() {
     }
 
     try {
-      await addDoc(collection(db, 'donors'), {
-        name: name.trim(),
-        email: email.trim(),
-        bloodType,
-        timestamp: new Date(),
+      await addDoc(collection(db, "donors"), {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        bloodType: formData.bloodType,
+        date: new Date().toISOString().split("T")[0], // Consistent with HomePage.jsx
       });
-      setMessage('Donor information submitted successfully!');
+      setMessage("Donor information submitted successfully!");
       setErrors({});
-      setName('');
-      setEmail('');
-      setBloodType('');
+      setFormData({ name: "", email: "", bloodType: "" });
+      setTimeout(() => navigate("/"), 2000); // Redirect to Home after 2 seconds
     } catch (error) {
-      setMessage('Error submitting donor information: ' + error.message);
+      setMessage("Error submitting donor information: " + error.message);
     }
   };
 
@@ -56,9 +63,10 @@ function DonorForm() {
           <label className="block text-sm font-medium text-gray-700">Name</label>
           <input
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className={`mt-1 p-2 border rounded w-full ${errors.name ? 'border-red-500' : ''}`}
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            className={`mt-1 p-2 border rounded w-full ${errors.name ? "border-red-500" : ""}`}
             required
           />
           {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
@@ -67,9 +75,10 @@ function DonorForm() {
           <label className="block text-sm font-medium text-gray-700">Email</label>
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={`mt-1 p-2 border rounded w-full ${errors.email ? 'border-red-500' : ''}`}
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            className={`mt-1 p-2 border rounded w-full ${errors.email ? "border-red-500" : ""}`}
             required
           />
           {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
@@ -77,9 +86,10 @@ function DonorForm() {
         <div>
           <label className="block text-sm font-medium text-gray-700">Blood Type</label>
           <select
-            value={bloodType}
-            onChange={(e) => setBloodType(e.target.value)}
-            className={`mt-1 p-2 border rounded w-full ${errors.bloodType ? 'border-red-500' : ''}`}
+            name="bloodType"
+            value={formData.bloodType}
+            onChange={handleChange}
+            className={`mt-1 p-2 border rounded w-full ${errors.bloodType ? "border-red-500" : ""}`}
             required
           >
             <option value="">Select Blood Type</option>
