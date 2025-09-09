@@ -2,6 +2,11 @@ import { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { Link } from "react-router-dom";
+import { Doughnut } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+
+// Register Chart.js components
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 function HomePage() {
   const [stats, setStats] = useState({ total: 0, bloodTypes: {} });
@@ -30,6 +35,21 @@ function HomePage() {
 
     fetchStats();
   }, []);
+
+  const chartData = {
+    labels: Object.keys(stats.bloodTypes),
+    datasets: [
+      {
+        label: "Donors by Blood Type",
+        data: Object.values(stats.bloodTypes),
+        backgroundColor: [
+          "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF",
+          "#FF9F40", "#C9CBCF", "#FF5733"
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
@@ -62,13 +82,16 @@ function HomePage() {
               <h3 className="text-xl font-medium text-gray-700 mb-1">
                 Blood Type Distribution
               </h3>
-              <ul className="list-disc list-inside text-gray-600">
+              <ul className="list-disc list-inside text-gray-600 mb-4">
                 {Object.entries(stats.bloodTypes).map(([type, count]) => (
                   <li key={type}>
                     {type}: {count} donor(s)
                   </li>
                 ))}
               </ul>
+              <div className="w-full max-w-xs mx-auto">
+                <Doughnut data={chartData} />
+              </div>
             </>
           )}
         </div>
