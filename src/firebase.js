@@ -1,8 +1,8 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  // Paste your Firebase config here
   apiKey: "AIzaSyCAZp_0Mx_kzTkjHI-UlTQADwbc_bZObCc",
   authDomain: "blood-donation-d4483.firebaseapp.com",
   projectId: "blood-donation-d4483",
@@ -13,3 +13,4 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+export const auth = getAuth(app);
