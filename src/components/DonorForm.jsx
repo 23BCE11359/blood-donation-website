@@ -38,12 +38,16 @@ function DonorForm() {
       return;
     }
 
+    // Generate IST date string
+    const istOffset = 5.5 * 60 * 60 * 1000; // 5 hours 30 minutes in milliseconds
+    const istDate = new Date(Date.now() + istOffset).toISOString().split("T")[0];
+
     try {
       await addDoc(collection(db, "donors"), {
         name: formData.name.trim(),
         email: formData.email.trim(),
         bloodType: formData.bloodType,
-        date: new Date().toISOString().split("T")[0],
+        date: istDate, // Store as IST date string (e.g., "2025-09-12")
       });
       setMessage("Donor information submitted successfully!");
       setErrors({});

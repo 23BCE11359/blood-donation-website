@@ -39,7 +39,7 @@ function Dashboard() {
                 <th className="border p-2 text-left">Name</th>
                 <th className="border p-2 text-left">Email</th>
                 <th className="border p-2 text-left">Blood Type</th>
-                <th className="border p-2 text-left">Date</th>
+                <th className="border p-2 text-left">Date (IST)</th>
               </tr>
             </thead>
             <tbody>
@@ -48,9 +48,7 @@ function Dashboard() {
                   <td className="border p-2">{donor.name}</td>
                   <td className="border p-2">{donor.email}</td>
                   <td className="border p-2">{donor.bloodType}</td>
-                  <td className="border p-2">
-                    {donor.date ? new Date(donor.date).toLocaleDateString() : "N/A"}
-                  </td>
+                  <td className="border p-2">{donor.date || "N/A"}</td>
                 </tr>
               ))}
             </tbody>
