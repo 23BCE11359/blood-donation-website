@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, Link, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Link, Navigate, useNavigate } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -9,18 +9,22 @@ import AboutUs from "./components/AboutUs";
 import Dashboard from "./components/Dashboard";
 import Auth from "./components/Auth";
 
-function App() {
+function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
+      if (currentUser && window.location.pathname === "/auth") {
+        navigate("/dashboard"); // Redirect to Dashboard only if on /auth after login
+      }
     });
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return <div className="p-4 text-gray-600">Loading...</div>;
@@ -31,7 +35,7 @@ function App() {
   };
 
   return (
-    <Router>
+    <>
       <nav className="bg-gray-800 p-4">
         <div className="flex justify-between items-center">
           <button
@@ -85,17 +89,25 @@ function App() {
         <Route path="/donate" element={<DonorForm />} />
         <Route path="/about" element={<AboutUs />} />
         <Route
-          path="/dashboard"
-          element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
-        />
-        <Route
           path="/auth"
           element={<Auth onAuthSuccess={(user) => setUser(user)} />}
+        />
+        <Route
+          path="/dashboard"
+          element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
         />
       </Routes>
       <footer className="bg-gray-800 p-4 text-white text-center">
         &copy; 2025 Blood Donation Hub. Developed by Naman Dhakad.
       </footer>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }
