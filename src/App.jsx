@@ -14,6 +14,7 @@ function AppContent() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -29,6 +30,20 @@ function AppContent() {
   if (loading) {
     return <div className="p-4 text-gray-600">Loading...</div>;
   }
+
+  const handleLogout = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = async () => {
+    await auth.signOut();
+    setShowLogoutConfirm(false);
+    navigate("/auth"); // Redirect to login after logout
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutConfirm(false);
+  };
 
   const ProtectedRoute = ({ children }) => {
     return user ? children : <Navigate to="/auth" replace />;
@@ -52,7 +67,7 @@ function AppContent() {
             {user ? (
               <li>
                 <button
-                  onClick={() => auth.signOut()}
+                  onClick={handleLogout}
                   className="text-white hover:text-red-300"
                 >
                   Logout
@@ -71,7 +86,7 @@ function AppContent() {
               {user ? (
                 <li>
                   <button
-                    onClick={() => { auth.signOut(); setIsMenuOpen(false); }}
+                    onClick={handleLogout}
                     className="text-white hover:text-red-300"
                   >
                     Logout
@@ -84,6 +99,27 @@ function AppContent() {
           )}
         </div>
       </nav>
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <p className="text-lg mb-4">Are you sure you want to log out?</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={cancelLogout}
+                className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmLogout}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/donate" element={<DonorForm />} />
