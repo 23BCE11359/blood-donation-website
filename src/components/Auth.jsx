@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { auth } from "../firebase";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 function Auth({ onAuthSuccess }) {
   const [email, setEmail] = useState("");
@@ -23,6 +23,21 @@ function Auth({ onAuthSuccess }) {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+    // Force account selection prompt every time
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
+
+    try {
+      const userCredential = await signInWithPopup(auth, provider);
+      onAuthSuccess(userCredential.user);
+    } catch (error) {
+      setMessage("Error with Google sign-in: " + error.message);
+    }
+  };
+
   return (
     <div className="p-4 max-w-md mx-auto">
       <h1 className="text-3xl font-bold text-red-600">{isRegister ? "Register" : "Login"}</h1>
@@ -32,7 +47,7 @@ function Auth({ onAuthSuccess }) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          className="form-input"
+          className="w-full p-2 border rounded focus:ring-2 focus:ring-red-500"
           required
         />
         <input
@@ -40,10 +55,13 @@ function Auth({ onAuthSuccess }) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
-          className="form-input"
+          className="w-full p-2 border rounded focus:ring-2 focus:ring-red-500"
           required
         />
-        <button type="submit" className="btn-primary w-full">
+        <button
+          type="submit"
+          className="bg-red-600 text-white p-2 rounded hover:bg-red-700 w-full"
+        >
           {isRegister ? "Register" : "Login"}
         </button>
         <p
@@ -54,6 +72,14 @@ function Auth({ onAuthSuccess }) {
         </p>
         {message && <p className="text-red-500 mt-2 text-center">{message}</p>}
       </form>
+      <div className="mt-4 text-center">
+        <button
+          onClick={handleGoogleSignIn}
+          className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 w-full"
+        >
+          Sign in with Google
+        </button>
+      </div>
     </div>
   );
 }
